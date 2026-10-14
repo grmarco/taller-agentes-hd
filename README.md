@@ -10,6 +10,7 @@ Materiales del taller impartido en el seminario de investigación del grupo INHD
 | [`prompts/`](prompts/) | Los prompts del caso práctico, en el orden de la charla: [`PROMPTS.md`](prompts/PROMPTS.md). |
 | [`caso_practico/inicio/`](caso_practico/inicio/) | Punto de partida del caso práctico: solo el planteamiento de la investigación. |
 | [`caso_practico/completo/`](caso_practico/completo/) | El caso práctico resuelto: corpus en dominio público, scripts, resultados y configuración de Claude Code. |
+| [`caso_practico/completo/explorador/`](caso_practico/completo/explorador/) | Explorador web del corpus (mapa estilométrico, frecuencias, concordancias, palabras características). Se abre [`index.html`](caso_practico/completo/explorador/index.html) en el navegador tras descargarlo. |
 
 ## Caso práctico: ¿quién escribió el *Lazarillo*?
 
@@ -27,6 +28,7 @@ Para seguir el taller:
 cd caso_practico/completo
 python3 scripts/limpiar.py
 Rscript scripts/analisis.R
+python3 scripts/construir_explorador.py
 ```
 
 ## Licencias

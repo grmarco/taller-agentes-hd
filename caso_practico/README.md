@@ -8,6 +8,7 @@ Dos carpetas:
   - `datos/limpio/` y `datos/fuentes.csv`: el corpus limpio y la procedencia de cada texto;
   - `scripts/limpiar.py` y `scripts/analisis.R`: limpieza y análisis con `stylo`;
   - `resultados/`: validación, distancias, dendrograma, árbol de consenso e informe;
+  - `explorador/index.html`: explorador web del corpus, generado con `scripts/construir_explorador.py`;
   - `CLAUDE.md` y `.claude/`: instrucciones del proyecto, subagentes (bibliógrafo, constructor de corpus, revisor), la skill `/anadir-texto` y un hook que protege `datos/bruto/`.
 
 Para regenerar todo desde `completo/`:
@@ -15,6 +16,7 @@ Para regenerar todo desde `completo/`:
 ```bash
 python3 scripts/limpiar.py
 Rscript scripts/analisis.R
+python3 scripts/construir_explorador.py
 ```
 
 Requisitos: Python 3, `pdftotext` (poppler) y R con el paquete `stylo` (`install.packages("stylo")`).

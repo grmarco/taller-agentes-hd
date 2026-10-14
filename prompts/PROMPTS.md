@@ -123,3 +123,19 @@ for f in datos/limpio/*.txt; do
   claude -p "Resume en una línea el género, la fecha y el registro de $f" --model haiku >> resultados/fichas.txt
 done
 ```
+
+## P16 · Figuras para el informe
+
+*Claude Code*
+
+```text
+Haz tres figuras para el informe: un mapa de componentes principales de los fragmentos, coloreados por autor; un mapa de calor de las distancias Delta; y un gráfico con las palabras que más pesan en cada eje del mapa. Explícame qué muestra cada figura y qué no se puede concluir de ella.
+```
+
+## P17 · Un explorador web del corpus
+
+*Claude Code*
+
+```text
+Construye un explorador web del corpus en una sola página HTML que funcione sin servidor, con cinco pestañas: la tabla del corpus con sus fuentes; el mapa estilométrico interactivo con el mapa de calor; un comparador de frecuencias de palabras por texto; concordancias (KWIC) con filtro por texto; y las palabras características del Lazarillo frente a cada candidato. Ábrelo en el navegador y comprueba que cada pestaña funciona antes de darlo por terminado.
+```

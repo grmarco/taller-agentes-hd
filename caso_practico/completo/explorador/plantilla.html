@@ -1,0 +1,322 @@
+<title>Explorador del Lazarillo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600&family=Fira+Mono&display=swap">
+<style>
+/* Layout: cabecera con pestañas; cada pestaña es una vista de trabajo con controles arriba y resultados debajo */
+:root {
+  --bg: #f7f9f8; --panel: #ffffff; --fg: #1f2623; --muted: #5b6963; --line: #d6e0db;
+  --accent: #1c513e; --accent-soft: #e4eee9; --hl: #b5651d; --hl-soft: #f6e7d8;
+  --g-laz: #b5651d; --g-cont: #8a5aa6; --g-av: #2f7a4f; --g-jv: #6aa84f; --g-hur: #3a6ea5; --g-cro: #8c8c8c;
+  --body: "Fira Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "Fira Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111714; --panel: #18201c; --fg: #e3ebe7; --muted: #9aaba3; --line: #2b3832;
+  --accent: #6fb796; --accent-soft: #1f2d27; --hl: #e2a061; --hl-soft: #3a2a1b;
+  --g-laz: #e2a061; --g-cont: #c39be0; --g-av: #5fbf86; --g-jv: #a6d97f; --g-hur: #7aaee6; --g-cro: #b3b3b3; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111714; --panel: #18201c; --fg: #e3ebe7; --muted: #9aaba3; --line: #2b3832;
+  --accent: #6fb796; --accent-soft: #1f2d27; --hl: #e2a061; --hl-soft: #3a2a1b;
+  --g-laz: #e2a061; --g-cont: #c39be0; --g-av: #5fbf86; --g-jv: #a6d97f; --g-hur: #7aaee6; --g-cro: #b3b3b3; color-scheme: dark }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 72rem; margin: 0 auto; padding-inline: 16px; padding-block: 1.5rem 3rem; }
+header { display: grid; gap: .25rem; margin-bottom: 1rem; }
+h1 { margin: 0; font-size: 1.5rem; font-weight: 600; color: var(--accent); text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 70ch; }
+nav { display: flex; flex-wrap: wrap; gap: .25rem; border-bottom: 2px solid var(--accent); margin-bottom: 1.2rem; }
+nav button { font: inherit; background: none; border: 0; padding: .55rem .9rem; color: var(--muted); cursor: pointer; border-radius: 4px 4px 0 0; }
+nav button[aria-selected="true"] { background: var(--accent); color: var(--panel); font-weight: 500; }
+nav button:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
+section { display: grid; gap: 1rem; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 1rem; min-width: 0; }
+.panel h2 { margin: 0 0 .5rem; font-size: 1rem; font-weight: 600; }
+.nota { color: var(--muted); font-size: .85rem; margin: .25rem 0 0; max-width: 75ch; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 1rem; }
+.controles { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+input, select { font: inherit; padding: .35rem .55rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--fg); min-width: 0; }
+input[type=text] { width: min(100%, 22rem); }
+button.boton { font: inherit; padding: .35rem .8rem; border: 1px solid var(--accent); background: var(--accent); color: var(--panel); border-radius: 4px; cursor: pointer; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 500; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; }
+td.num, th.num { text-align: right; }
+a { color: var(--accent); }
+.punto { display: inline-block; width: .7rem; height: .7rem; border-radius: 50%; margin-right: .35rem; vertical-align: baseline; }
+.leyenda { display: flex; flex-wrap: wrap; gap: .3rem 1rem; font-size: .85rem; color: var(--muted); }
+svg text { fill: var(--fg); font-family: var(--body); }
+svg .eje line, svg .eje path { stroke: var(--line); }
+svg .eje text { fill: var(--muted); font-size: 11px; }
+.tip { position: fixed; pointer-events: none; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: .35rem .55rem; font-size: .8rem; box-shadow: 0 2px 8px rgb(0 0 0 / .15); max-width: 18rem; }
+.kwic td { font-family: var(--mono); font-size: .82rem; white-space: nowrap; }
+.kwic td.izq { text-align: right; color: var(--muted); max-width: 22rem; overflow: hidden; text-overflow: ellipsis; direction: rtl; }
+.kwic td.der { color: var(--muted); max-width: 22rem; overflow: hidden; text-overflow: ellipsis; }
+.kwic td.clave { color: var(--hl); font-weight: 600; text-align: center; }
+.kwic td.fuente { font-family: var(--body); color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+.chip { font: inherit; font-size: .85rem; padding: .15rem .55rem; border-radius: 999px; border: 1px solid var(--line); background: var(--accent-soft); color: var(--fg); cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Explorador del corpus del <em>Lazarillo</em></h1>
+    <p>Lazarillo de Tormes (1554) y textos en dominio público de los candidatos y de las continuaciones. Construido con un agente a partir del corpus y los scripts del caso práctico.</p>
+  </header>
+  <nav role="tablist" id="pestanas"></nav>
+
+  <section id="v-corpus" role="tabpanel">
+    <div class="panel">
+      <h2>Textos del corpus</h2>
+      <div class="scroll"><table id="tabla-corpus"></table></div>
+      <p class="nota">Falta Arce de Otálora, el candidato que favorecen los estudios computacionales: sus <em>Coloquios</em> solo están en edición moderna con derechos. Las ediciones tienen ortografía desigual.</p>
+    </div>
+  </section>
+
+  <section id="v-mapa" role="tabpanel" hidden>
+    <div class="grid2">
+      <div class="panel">
+        <h2>Mapa de los fragmentos</h2>
+        <div id="leyenda" class="leyenda"></div>
+        <div id="pca"></div>
+        <p class="nota" id="nota-pca"></p>
+      </div>
+      <div class="panel">
+        <h2>Distancias Delta entre fragmentos</h2>
+        <div class="scroll"><div id="calor"></div></div>
+        <p class="nota">Delta de Burrows sobre las <span id="mfw"></span> palabras más frecuentes. Más oscuro, más parecido. Los fragmentos son de 18 000 palabras, el tamaño del <em>Lazarillo</em>.</p>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Palabras que más pesan en el mapa</h2>
+      <div id="cargas" class="grid2"></div>
+      <p class="nota">Las doce palabras con más peso en cada eje del mapa; el color indica hacia qué lado empujan. Pulse una palabra para ver sus frecuencias por texto.</p>
+    </div>
+  </section>
+
+  <section id="v-frecuencias" role="tabpanel" hidden>
+    <div class="panel">
+      <h2>Frecuencia de palabras por texto</h2>
+      <form class="controles" id="form-frec">
+        <label for="q-frec">Palabras (separadas por comas)</label>
+        <input type="text" id="q-frec" list="vocabulario" value="mesmo, merced, señor">
+        <button class="boton" type="submit">Comparar</button>
+      </form>
+      <div id="frec"></div>
+      <p class="nota">Apariciones por cada 10 000 palabras. Solo se pueden comparar las 4 000 palabras más frecuentes del corpus.</p>
+    </div>
+  </section>
+
+  <section id="v-concordancias" role="tabpanel" hidden>
+    <div class="panel">
+      <h2>Concordancias</h2>
+      <form class="controles" id="form-kwic">
+        <label for="q-kwic">Palabra o expresión</label>
+        <input type="text" id="q-kwic" value="ciego">
+        <label for="t-kwic">en</label>
+        <select id="t-kwic"></select>
+        <button class="boton" type="submit">Buscar</button>
+      </form>
+      <p class="nota" id="resumen-kwic"></p>
+      <div class="scroll"><table class="kwic" id="kwic"></table></div>
+    </div>
+  </section>
+
+  <section id="v-caracteristicas" role="tabpanel" hidden>
+    <div class="panel">
+      <h2>Palabras características del <em>Lazarillo</em></h2>
+      <div class="controles">
+        <label for="t-car">frente a</label>
+        <select id="t-car"></select>
+      </div>
+      <div class="grid2" style="margin-top:.75rem">
+        <div><h2 id="tit-laz">Más frecuentes en el Lazarillo</h2><div id="car-laz"></div></div>
+        <div><h2 id="tit-otro">Más frecuentes en el otro texto</h2><div id="car-otro"></div></div>
+      </div>
+      <p class="nota">Cociente logarítmico de frecuencias relativas (log₂) entre las 1 500 palabras más frecuentes con al menos 20 apariciones. Pulse una palabra para ver sus concordancias.</p>
+    </div>
+  </section>
+  <datalist id="vocabulario"></datalist>
+</div>
+<div class="tip" id="tip" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+const D = /*DATOS*/{};
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const GRUPOS = ["Lazarillo", "Continuaciones", "Alfonso de Valdés", "Juan de Valdés", "Hurtado de Mendoza", "El Crótalon"];
+const VAR = {"Lazarillo": "--g-laz", "Continuaciones": "--g-cont", "Alfonso de Valdés": "--g-av", "Juan de Valdés": "--g-jv", "Hurtado de Mendoza": "--g-hur", "El Crótalon": "--g-cro"};
+const color = g => css(VAR[g]);
+const etiqueta = id => D.textos.find(t => t.id === id).etiqueta;
+const fmt = n => n.toLocaleString("es-ES");
+const tip = document.getElementById("tip");
+function verTip(ev, html) { tip.innerHTML = html; tip.hidden = false; tip.style.left = Math.min(ev.clientX + 12, innerWidth - 300) + "px"; tip.style.top = (ev.clientY + 12) + "px"; }
+function ocultarTip() { tip.hidden = true; }
+
+// ---- pestañas -------------------------------------------------------------
+const VISTAS = [["corpus", "Corpus"], ["mapa", "Mapa estilométrico"], ["frecuencias", "Frecuencias"], ["concordancias", "Concordancias"], ["caracteristicas", "Palabras características"]];
+const nav = document.getElementById("pestanas");
+function abrir(v) {
+  VISTAS.forEach(([id]) => { document.getElementById("v-" + id).hidden = id !== v; nav.querySelector(`[data-v=${id}]`).setAttribute("aria-selected", id === v); });
+  try { history.replaceState(null, "", "#" + v); } catch (e) {}
+  dibujar(v);
+}
+VISTAS.forEach(([id, nombre]) => { const b = document.createElement("button"); b.textContent = nombre; b.dataset.v = id; b.setAttribute("role", "tab"); b.onclick = () => abrir(id); nav.appendChild(b); });
+
+// ---- corpus ---------------------------------------------------------------
+function corpus() {
+  const t = document.getElementById("tabla-corpus");
+  const total = D.textos.reduce((s, x) => s + x.palabras, 0);
+  t.innerHTML = `<thead><tr><th>Texto</th><th>Autor</th><th class="num">Año</th><th class="num">Palabras</th><th>Ortografía</th><th>Fuente</th></tr></thead><tbody>` +
+    D.textos.map(x => `<tr><td><span class="punto" style="background:${color(x.grupo)}"></span>${x.obra}</td><td>${x.autor}</td><td class="num">${x["año"]}</td><td class="num">${fmt(x.palabras)}</td><td>${x.ortografia}</td><td><a href="${x.url}" target="_blank" rel="noopener">${x.edicion}</a></td></tr>`).join("") +
+    `</tbody><tfoot><tr><td colspan="3"><strong>Total</strong></td><td class="num"><strong>${fmt(total)}</strong></td><td colspan="2"></td></tr></tfoot>`;
+}
+
+// ---- mapa: ACP y mapa de calor ---------------------------------------------
+function mapa() {
+  document.getElementById("leyenda").innerHTML = GRUPOS.map(g => `<span><span class="punto" style="background:${color(g)}"></span>${g}</span>`).join("");
+  document.getElementById("mfw").textContent = D.mfw;
+  document.getElementById("nota-pca").innerHTML = `Análisis de componentes principales de las ${D.mfw} palabras más frecuentes. Los ejes explican el ${Math.round(D.varianza[0] * 100)} % y el ${Math.round(D.varianza[1] * 100)} % de la variación. Cada punto es un fragmento de 18 000 palabras.`;
+  const el = document.getElementById("pca"); el.innerHTML = "";
+  const W = el.clientWidth || 480, H = Math.min(420, W * 0.8), m = {t: 10, r: 14, b: 32, l: 40};
+  const x = d3.scaleLinear().domain(d3.extent(D.fragmentos, d => d.x)).nice().range([m.l, W - m.r]);
+  const y = d3.scaleLinear().domain(d3.extent(D.fragmentos, d => d.y)).nice().range([H - m.b, m.t]);
+  const svg = d3.select(el).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("width", "100%");
+  svg.append("g").attr("class", "eje").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(5));
+  svg.append("g").attr("class", "eje").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5));
+  svg.append("text").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").attr("font-size", 11).text("componente 1");
+  svg.append("text").attr("x", m.l + 4).attr("y", m.t + 10).attr("font-size", 11).text("componente 2");
+  svg.selectAll("circle").data(D.fragmentos).join("circle")
+    .attr("cx", d => x(d.x)).attr("cy", d => y(d.y)).attr("r", d => d.grupo === "Lazarillo" ? 9 : 6)
+    .attr("fill", d => color(d.grupo)).attr("stroke", css("--panel")).attr("stroke-width", 1.5)
+    .on("mousemove", (ev, d) => verTip(ev, `<strong>${etiqueta(d.texto)}</strong><br>${d.id}`)).on("mouseleave", ocultarTip);
+  const laz = D.fragmentos.find(d => d.grupo === "Lazarillo");
+  svg.append("text").attr("x", x(laz.x) + 12).attr("y", y(laz.y) + 4).attr("font-weight", 600).attr("font-size", 12).text("Lazarillo");
+
+  // mapa de calor
+  const orden = D.fragmentos.map((d, i) => i).sort((a, b) => GRUPOS.indexOf(D.fragmentos[a].grupo) - GRUPOS.indexOf(D.fragmentos[b].grupo) || D.fragmentos[a].id.localeCompare(D.fragmentos[b].id));
+  const c = document.getElementById("calor"); c.innerHTML = "";
+  const n = orden.length, celda = 20, izq = 150, arriba = 10;
+  const Wc = izq + n * celda + 10, Hc = arriba + n * celda + 10;
+  const valores = D.delta.flat().filter(v => v > 0);
+  const esc = d3.scaleSequential(t => d3.interpolateRgb(css("--accent"), css("--accent-soft"))(t)).domain([d3.min(valores), d3.max(valores)]);
+  const s2 = d3.select(c).append("svg").attr("viewBox", `0 0 ${Wc} ${Hc}`).attr("width", Wc).attr("height", Hc);
+  orden.forEach((i, r) => {
+    const f = D.fragmentos[i];
+    s2.append("text").attr("x", izq - 6).attr("y", arriba + r * celda + 14).attr("text-anchor", "end").attr("font-size", 10.5)
+      .attr("font-weight", f.grupo === "Lazarillo" ? 600 : 400).text(f.id.replace(/_/g, " "));
+    s2.append("rect").attr("x", izq - 4).attr("y", arriba + r * celda + 2).attr("width", 3).attr("height", celda - 4).attr("fill", color(f.grupo));
+    orden.forEach((j, k) => {
+      s2.append("rect").attr("x", izq + k * celda).attr("y", arriba + r * celda).attr("width", celda - 1).attr("height", celda - 1)
+        .attr("fill", i === j ? css("--line") : esc(D.delta[i][j]))
+        .on("mousemove", ev => verTip(ev, `${D.fragmentos[i].id}<br>${D.fragmentos[j].id}<br><strong>Delta ${D.delta[i][j].toFixed(3)}</strong>`)).on("mouseleave", ocultarTip);
+    });
+  });
+
+  // cargas: barras divergentes por eje
+  const cg = document.getElementById("cargas"); cg.innerHTML = "";
+  ["pc1", "pc2"].forEach((k, n) => {
+    const caja = document.createElement("div"); caja.style.minWidth = "0"; cg.appendChild(caja);
+    caja.insertAdjacentHTML("beforeend", `<p class="nota" style="margin:0 0 .25rem"><strong>Componente ${n + 1}</strong> (${Math.round(D.varianza[n] * 100)} %)</p>`);
+    const lista = D.cargas[k], W = Math.max(280, (cg.clientWidth || 800) / 2 - 16), H = lista.length * 22 + 8, mid = W / 2;
+    const ext = d3.max(lista, d => Math.abs(d.peso));
+    const x = d3.scaleLinear().domain([-ext, ext]).range([70, W - 70]);
+    const svg = d3.select(caja).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("width", "100%");
+    svg.append("line").attr("x1", x(0)).attr("x2", x(0)).attr("y1", 0).attr("y2", H).attr("stroke", css("--line"));
+    lista.forEach((d, i) => {
+      const y = i * 22 + 4, neg = d.peso < 0;
+      const g = svg.append("g").style("cursor", "pointer").on("click", () => { document.getElementById("q-frec").value = d.palabra; abrir("frecuencias"); });
+      g.append("rect").attr("x", Math.min(x(0), x(d.peso))).attr("y", y).attr("width", Math.abs(x(d.peso) - x(0))).attr("height", 16).attr("rx", 2).attr("fill", neg ? css("--g-hur") : css("--g-laz"));
+      g.append("text").attr("x", neg ? x(d.peso) - 5 : x(d.peso) + 5).attr("y", y + 12).attr("text-anchor", neg ? "end" : "start").attr("font-size", 12).text(d.palabra);
+    });
+  });
+}
+
+// ---- frecuencias -----------------------------------------------------------
+function frecuencias() {
+  const palabras = document.getElementById("q-frec").value.toLowerCase().split(",").map(s => s.trim()).filter(Boolean).slice(0, 4);
+  const el = document.getElementById("frec"); el.innerHTML = "";
+  const validas = palabras.filter(p => D.frecuencias[p]);
+  const faltan = palabras.filter(p => !D.frecuencias[p]);
+  if (faltan.length) el.insertAdjacentHTML("beforeend", `<p class="nota">No están entre las 4 000 más frecuentes: ${faltan.join(", ")}.</p>`);
+  if (!validas.length) return;
+  const textos = D.textos.map(t => t.id);
+  const W = el.clientWidth || 800, fila = 22 * validas.length + 10, izq = 230, H = textos.length * fila + 30;
+  const max = d3.max(validas.flatMap(p => textos.map(t => D.frecuencias[p][t])));
+  const x = d3.scaleLinear().domain([0, max]).nice().range([izq, W - 60]);
+  const svg = d3.select(el).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("width", "100%");
+  const tonos = [css("--accent"), css("--hl"), css("--g-hur"), css("--g-cont")];
+  textos.forEach((t, r) => {
+    const g = D.textos[r];
+    svg.append("text").attr("x", izq - 8).attr("y", r * fila + fila / 2 + 4).attr("text-anchor", "end").attr("font-size", 12)
+      .attr("font-weight", g.grupo === "Lazarillo" ? 600 : 400).text(g.etiqueta);
+    validas.forEach((p, k) => {
+      const v = D.frecuencias[p][t];
+      svg.append("rect").attr("x", izq).attr("y", r * fila + 5 + k * 22).attr("width", Math.max(1, x(v) - izq)).attr("height", 16).attr("fill", tonos[k]).attr("rx", 2);
+      svg.append("text").attr("x", x(v) + 5).attr("y", r * fila + 17 + k * 22).attr("font-size", 11).text(`${p} ${v.toLocaleString("es-ES")}`);
+    });
+  });
+}
+
+// ---- concordancias ---------------------------------------------------------
+function concordancias() {
+  const q = document.getElementById("q-kwic").value.trim();
+  const filtro = document.getElementById("t-kwic").value;
+  const tabla = document.getElementById("kwic"), res = document.getElementById("resumen-kwic");
+  if (!q) { tabla.innerHTML = ""; res.textContent = ""; return; }
+  const esc = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+  const re = new RegExp(`(?<![\\p{L}])${esc}(?![\\p{L}])`, "giu");
+  const filas = [], cuentas = {};
+  for (const t of D.textos) {
+    if (filtro !== "todos" && t.id !== filtro) continue;
+    let m, k = 0;
+    re.lastIndex = 0;
+    while ((m = re.exec(t.texto))) {
+      k++;
+      if (filas.length < 300) filas.push([t, t.texto.slice(Math.max(0, m.index - 70), m.index), m[0], t.texto.slice(m.index + m[0].length, m.index + m[0].length + 70)]);
+    }
+    cuentas[t.id] = k;
+  }
+  const total = Object.values(cuentas).reduce((a, b) => a + b, 0);
+  res.innerHTML = `${fmt(total)} apariciones` + (filtro === "todos" ? ": " + D.textos.filter(t => cuentas[t.id]).map(t => `${t.etiqueta} ${cuentas[t.id]}`).join(" · ") : "") + (total > 300 ? ". Se muestran las 300 primeras." : ".");
+  const h = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  tabla.innerHTML = filas.map(([t, a, k, b]) => `<tr><td class="izq"><bdi>${h(a)}</bdi></td><td class="clave">${h(k)}</td><td class="der">${h(b)}</td><td class="fuente"><span class="punto" style="background:${color(t.grupo)}"></span>${t.etiqueta}</td></tr>`).join("");
+}
+
+// ---- palabras características ---------------------------------------------
+function caracteristicas() {
+  const id = document.getElementById("t-car").value, c = D.caracteristicas[id];
+  document.getElementById("tit-otro").textContent = "Más frecuentes en " + etiqueta(id);
+  const barras = (el, lista, col) => {
+    el.innerHTML = "";
+    const W = el.clientWidth || 420, H = lista.length * 24 + 10, izq = 110;
+    const max = d3.max(lista, d => Math.abs(d.lr));
+    const x = d3.scaleLinear().domain([0, max]).range([izq, W - 70]);
+    const svg = d3.select(el).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("width", "100%");
+    lista.forEach((d, i) => {
+      const g = svg.append("g").style("cursor", "pointer").on("click", () => { document.getElementById("q-kwic").value = d.palabra; document.getElementById("t-kwic").value = "todos"; abrir("concordancias"); })
+        .on("mousemove", ev => verTip(ev, `<strong>${d.palabra}</strong><br>Lazarillo: ${d.a} · otro texto: ${d.b}<br>log₂ ${d.lr}`)).on("mouseleave", ocultarTip);
+      g.append("text").attr("x", izq - 8).attr("y", i * 24 + 18).attr("text-anchor", "end").attr("font-size", 13).text(d.palabra);
+      g.append("rect").attr("x", izq).attr("y", i * 24 + 6).attr("width", x(Math.abs(d.lr)) - izq).attr("height", 16).attr("fill", col).attr("rx", 2);
+      g.append("text").attr("x", x(Math.abs(d.lr)) + 5).attr("y", i * 24 + 18).attr("font-size", 11).text(Math.abs(d.lr).toFixed(1));
+    });
+  };
+  barras(document.getElementById("car-laz"), c.lazarillo, css("--g-laz"));
+  barras(document.getElementById("car-otro"), c.otro, css("--accent"));
+}
+
+// ---- arranque --------------------------------------------------------------
+function dibujar(v) { ({corpus, mapa, frecuencias, concordancias, caracteristicas})[v](); }
+document.getElementById("t-kwic").innerHTML = `<option value="todos">todos los textos</option>` + D.textos.map(t => `<option value="${t.id}">${t.etiqueta}</option>`).join("");
+document.getElementById("t-car").innerHTML = D.textos.filter(t => t.id !== "Lazarillo_1554").map(t => `<option value="${t.id}">${t.etiqueta}</option>`).join("");
+document.getElementById("vocabulario").innerHTML = Object.keys(D.frecuencias).slice(0, 1500).map(w => `<option value="${w}">`).join("");
+document.getElementById("t-car").onchange = caracteristicas;
+document.getElementById("form-frec").onsubmit = e => { e.preventDefault(); frecuencias(); };
+document.getElementById("form-kwic").onsubmit = e => { e.preventDefault(); concordancias(); };
+let actual = "corpus";
+try { const h = location.hash.slice(1); if (VISTAS.some(([id]) => id === h)) actual = h; } catch (e) {}
+abrir(actual);
+window.addEventListener("resize", () => { const v = VISTAS.find(([id]) => !document.getElementById("v-" + id).hidden)[0]; dibujar(v); });
+</script>
