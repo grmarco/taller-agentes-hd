@@ -2,6 +2,9 @@
 
 Materiales del taller impartido en el seminario de investigación del grupo INHDIE (UNED), el 15 de octubre de 2026, por Guillermo Marco Remón (Grupo NLP & IR, UNED).
 
+**Prompts para copiar:** https://grmarco.github.io/taller-agentes-hd/prompts/
+**Explorador del corpus:** https://grmarco.github.io/taller-agentes-hd/caso_practico/completo/explorador/
+
 ## Contenido
 
 | Carpeta | Qué hay |
