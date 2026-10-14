@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "deny": ["Edit(./datos/bruto/**)", "Write(./datos/bruto/**)"]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | grep -q '/datos/bruto/' && { echo 'Los textos descargados no se modifican: trabaja sobre datos/limpio/' >&2; exit 2; } || exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

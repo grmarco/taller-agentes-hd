@@ -1,0 +1,17 @@
+"normalizada","mfw","delta","fragmentos","acierto"
+FALSE,100,"clasica",14,1
+FALSE,100,"coseno",14,1
+FALSE,200,"clasica",14,1
+FALSE,200,"coseno",14,1
+FALSE,300,"clasica",14,1
+FALSE,300,"coseno",14,1
+FALSE,500,"clasica",14,1
+FALSE,500,"coseno",14,1
+TRUE,100,"clasica",14,1
+TRUE,100,"coseno",14,1
+TRUE,200,"clasica",14,1
+TRUE,200,"coseno",14,1
+TRUE,300,"clasica",14,1
+TRUE,300,"coseno",14,1
+TRUE,500,"clasica",14,1
+TRUE,500,"coseno",14,1

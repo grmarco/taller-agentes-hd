@@ -1,0 +1,9 @@
+# Solo se publica lo necesario para el taller
+slides/*
+!slides/main.pdf
+prompts/*
+!prompts/PROMPTS.md
+notas/
+caso_practico/completo/resultados/fragmentos/
+__pycache__/
+.Rhistory
