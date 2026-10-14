@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Prompts del taller INHDIE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;600&family=Fira+Mono:wght@400&display=swap">
+<style>
+[hidden] { display: none !important; }
+/* Layout: una columna de fichas numeradas en el orden de la charla; cada ficha con su botón de copiar */
+:root {
+  --bg: #fbfcfb; --fg: #1f2623; --muted: #5d6b65; --line: #d5e0db;
+  --accent: #1c513e; --accent-fg: #ffffff; --code-bg: #eef3f1; --ok: #2f7a4f;
+  --body: "Fira Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "Fira Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121815; --fg: #e3ebe7; --muted: #9aaba3; --line: #2b3832;
+  --accent: #6fb796; --accent-fg: #0d1411; --code-bg: #1a231f; --ok: #79c79a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121815; --fg: #e3ebe7; --muted: #9aaba3; --line: #2b3832;
+  --accent: #6fb796; --accent-fg: #0d1411; --code-bg: #1a231f; --ok: #79c79a; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 50rem; margin: 0 auto; padding-inline: 16px; padding-block: 2rem 4rem; }
+header { display: grid; gap: .35rem; border-bottom: 2px solid var(--accent); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+h1 { font-size: 1.6rem; font-weight: 600; margin: 0; color: var(--accent); text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 65ch; }
+ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+li { border: 1px solid var(--line); border-radius: 4px; padding: .8rem 1rem; display: grid; gap: .5rem; min-width: 0; scroll-margin-top: 1rem; }
+li:target { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .75rem; }
+.id { font-family: var(--mono); font-size: .8rem; color: var(--accent); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.t { font-weight: 600; }
+.where { color: var(--muted); font-size: .85rem; }
+button { margin-left: auto; font: inherit; font-size: .85rem; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg); border-radius: 3px; padding: .2rem .8rem; cursor: pointer; }
+button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+button.done { background: transparent; color: var(--ok); border-color: var(--ok); }
+pre { margin: 0; background: var(--code-bg); padding: .7rem .8rem; border-radius: 3px; font-family: var(--mono); font-size: .88rem; white-space: pre-wrap; word-break: break-word; overflow-x: auto; }
+footer { margin-top: 2rem; color: var(--muted); font-size: .85rem; }
+</style>
+<div class="wrap">
+  <header>
+    <h1>Prompts del taller</h1>
+    <p>«Un equipo de una persona: flujos de trabajo con IA agéntica en humanidades digitales». Seminario INHDIE, UNED, 15 de octubre de 2026. Guillermo Marco Remón.</p>
+    <p>Los prompts siguen el orden de la charla. Las cajas «P01, P02…» de las diapositivas enlazan con su ficha.</p>
+  </header>
+  <ol id="lista"></ol>
+  <footer>Materiales del taller: github.com/grmarco/taller-agentes-hd</footer>
+</div>
+<script>
+const PROMPTS = [
+ {
+  "id": "p01",
+  "titulo": "Chat: pedir el texto",
+  "donde": "chat (claude.ai, ChatGPT…)",
+  "texto": "Necesito el texto del Lazarillo de Tormes (1554) en una edición de dominio público para un análisis estilométrico. Descárgamelo y dime cuántas palabras tiene."
+ },
+ {
+  "id": "p02",
+  "titulo": "Agente: mismo encargo, con comprobación",
+  "donde": "Claude Code, en la carpeta caso_practico",
+  "texto": "Necesito el texto del Lazarillo de Tormes (1554) en una edición de dominio público para un análisis estilométrico. Guarda el original tal cual y prepara aparte una versión limpia, sin cabeceras, notas ni las interpolaciones de la edición de Alcalá. Antes de terminar, comprueba que la versión limpia tiene entre 17 000 y 20 000 palabras y muéstrame la primera y la última frase."
+ },
+ {
+  "id": "p03",
+  "titulo": "Instrucciones permanentes",
+  "donde": "Claude Code",
+  "texto": "/init"
+ },
+ {
+  "id": "p04",
+  "titulo": "Completar CLAUDE.md",
+  "donde": "Claude Code",
+  "texto": "Añade a CLAUDE.md, en no más de seis líneas: escribe en español idiomático, porque los informes los leen filólogos; ninguna afirmación sin su fuente o sin el resultado que la respalda; no modifiques nunca los textos originales descargados; distingue siempre afinidad estilística de autoría."
+ },
+ {
+  "id": "p05",
+  "titulo": "Planificar la investigación",
+  "donde": "Claude Code (modo plan: Mayús+Tab)",
+  "texto": "/plan Lee PROYECTO.md y propón un plan de trabajo con subagentes: estado de la cuestión, construcción del corpus (un subagente por candidato), validación del método y análisis. Para cada subagente indica qué modelo usa y por qué (Haiku para descargar y limpiar, Sonnet para buscar y leer bibliografía), cuántos turnos como máximo y cuánto calculas que costará. Incluye cómo comprobaremos que cada parte está bien hecha. No ejecutes nada todavía."
+ },
+ {
+  "id": "p06",
+  "titulo": "Definir los subagentes",
+  "donde": "Claude Code",
+  "texto": "Crea tres subagentes para este proyecto. Un bibliógrafo (con Sonnet y búsqueda en internet) que compruebe que cada estudio existe antes de citarlo y me devuelva un resumen de diez líneas. Un constructor de corpus (con Haiku, el modelo barato) que busque, descargue y limpie los textos en dominio público de un autor y anote de dónde salen. Y un revisor (con Sonnet) que solo pueda leer, no modificar."
+ },
+ {
+  "id": "p07",
+  "titulo": "Orquestar el trabajo en paralelo",
+  "donde": "Claude Code",
+  "texto": "Ejecuta el plan: lanza a la vez el bibliógrafo y un constructor de corpus por cada candidato con textos en dominio público (Alfonso de Valdés, Juan de Valdés, Diego Hurtado de Mendoza) y otro para los textos de control (Segunda parte de 1555, Juan de Luna 1620, El Crótalon de Villalón). Cuando terminen, resume en una tabla qué tenemos de cada candidato y qué nos falta respecto a los estudios previos."
+ },
+ {
+  "id": "p08",
+  "titulo": "Convertir en skill",
+  "donde": "Claude Code",
+  "texto": "Convierte en una skill llamada anadir-texto lo que hemos hecho para añadir un texto al corpus: recibe un enlace, un autor y una obra; descarga, limpia, cuenta palabras, enseña el principio y el final y anota la procedencia. Si la edición tiene derechos o el texto tiene menos de 5 000 palabras, que no lo añada y explique por qué."
+ },
+ {
+  "id": "p09",
+  "titulo": "Usar la skill",
+  "donde": "Claude Code",
+  "texto": "/anadir-texto https://es.wikisource.org/wiki/La_segunda_parte_de_Lazarillo_de_Tormes Anónimo Segunda_parte_1555"
+ },
+ {
+  "id": "p10",
+  "titulo": "Validar el método",
+  "donde": "Claude Code",
+  "texto": "Antes de aplicar el método al Lazarillo, valídalo. Con stylo en R, trocea los textos de autor conocido en fragmentos de unas 18 000 palabras y comprueba si Delta (clásica y coseno, de 100 a 500 palabras más frecuentes) agrupa cada fragmento con su autor. Repítelo con la ortografía normalizada. Da el método por bueno solo si acierta al menos el 90 % de los fragmentos; si no llega, explícame por qué y no sigas."
+ },
+ {
+  "id": "p11",
+  "titulo": "Aplicar el método al Lazarillo",
+  "donde": "Claude Code",
+  "texto": "Aplica al Lazarillo la configuración que mejor ha funcionado: dendrograma, tabla de distancias a cada candidato y árbol de consenso. Escribe un informe que compare con el estado de la cuestión y separe lo que se puede afirmar de lo que no."
+ },
+ {
+  "id": "p12",
+  "titulo": "Hook que protege los textos",
+  "donde": "Claude Code",
+  "texto": "Añade un hook, una regla que se cumpla siempre, que impida modificar los textos originales descargados. Después explícame por qué es más fiable que pedírtelo en CLAUDE.md."
+ },
+ {
+  "id": "p13",
+  "titulo": "Revisión independiente",
+  "donde": "Claude Code, tras /clear",
+  "texto": "Pide al revisor que examine los resultados y los scripts. Quiero solo los problemas que afecten a la validez de las conclusiones."
+ },
+ {
+  "id": "p14",
+  "titulo": "Guardar el trabajo con git",
+  "donde": "Claude Code",
+  "texto": "Inicializa un repositorio git si no existe y haz un commit con lo hecho hasta ahora, con un mensaje descriptivo en español."
+ },
+ {
+  "id": "p15",
+  "titulo": "Trabajo por lotes sin conversación",
+  "donde": "terminal (modo headless)",
+  "texto": "for f in datos/limpio/*.txt; do\n  claude -p \"Resume en una línea el género, la fecha y el registro de $f\" --model haiku >> resultados/fichas.txt\ndone"
+ },
+ {
+  "id": "p16",
+  "titulo": "Figuras para el informe",
+  "donde": "Claude Code",
+  "texto": "Haz tres figuras para el informe: un mapa de componentes principales de los fragmentos, coloreados por autor; un mapa de calor de las distancias Delta; y un gráfico con las palabras que más pesan en cada eje del mapa. Explícame qué muestra cada figura y qué no se puede concluir de ella."
+ },
+ {
+  "id": "p17",
+  "titulo": "Un explorador web del corpus",
+  "donde": "Claude Code",
+  "texto": "Construye un explorador web del corpus en una sola página HTML que funcione sin servidor, con cinco pestañas: la tabla del corpus con sus fuentes; el mapa estilométrico interactivo con el mapa de calor; un comparador de frecuencias de palabras por texto; concordancias (KWIC) con filtro por texto; y las palabras características del Lazarillo frente a cada candidato. Ábrelo en el navegador y comprueba que cada pestaña funciona antes de darlo por terminado."
+ }
+];
+const lista = document.getElementById("lista");
+for (const p of PROMPTS) {
+  const li = document.createElement("li");
+  li.id = p.id;
+  li.innerHTML = `<div class="head"><span class="id">${p.id.toUpperCase()}</span><span class="t"></span><span class="where"></span><button type="button" id="b-${p.id}">Copiar</button></div><pre></pre>`;
+  li.querySelector(".t").textContent = p.titulo;
+  li.querySelector(".where").textContent = p.donde;
+  const pre = li.querySelector("pre");
+  pre.textContent = p.texto;
+  const btn = li.querySelector("button");
+  btn.addEventListener("click", () => {
+    const ok = () => { btn.textContent = "Copiado"; btn.classList.add("done");
+      setTimeout(() => { btn.textContent = "Copiar"; btn.classList.remove("done"); }, 1800); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre);
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = "Ctrl+C"; };
+    try { navigator.clipboard.writeText(p.texto).then(ok, fallback); } catch (e) { fallback(); }
+  });
+  lista.appendChild(li);
+}
+if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+</script>
+
+</body>
+</html>

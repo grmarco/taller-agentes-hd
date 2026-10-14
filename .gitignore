@@ -3,6 +3,7 @@ slides/*
 !slides/main.pdf
 prompts/*
 !prompts/PROMPTS.md
+!prompts/index.html
 notas/
 caso_practico/completo/resultados/fragmentos/
 __pycache__/
