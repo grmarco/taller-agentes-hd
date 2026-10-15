@@ -12,7 +12,6 @@ Revisión estilométrica de las hipótesis de autoría del *Lazarillo de Tormes*
 
 ## Normas
 
-- Escribir en español idiomático: los informes los leen filólogos.
 - Ninguna afirmación sin su fuente o sin el resultado que la respalda.
 - Solo textos en dominio público, con su procedencia anotada en `datos/fuentes.csv`.
 - Distinguir siempre afinidad estilística de autoría.

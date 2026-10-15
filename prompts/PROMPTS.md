@@ -31,7 +31,7 @@ Necesito el texto del Lazarillo de Tormes (1554) en una edición de dominio púb
 *Claude Code*
 
 ```text
-Añade a CLAUDE.md, en no más de seis líneas: escribe en español idiomático, porque los informes los leen filólogos; ninguna afirmación sin su fuente o sin el resultado que la respalda; no modifiques nunca los textos originales descargados; distingue siempre afinidad estilística de autoría.
+Añade a CLAUDE.md, en no más de seis líneas: ninguna afirmación sin su fuente o sin el resultado que la respalda; no modifiques nunca los textos originales descargados; distingue siempre afinidad estilística de autoría.
 ```
 
 ## P05 · Planificar la investigación
